@@ -1,4 +1,5 @@
-﻿using ActionCommandGame.Abstractions;
+﻿using System.ComponentModel.DataAnnotations.Schema;
+using ActionCommandGame.Abstractions;
 
 namespace ActionCommandGame.Model
 {

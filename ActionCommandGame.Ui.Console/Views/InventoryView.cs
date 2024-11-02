@@ -1,4 +1,4 @@
-﻿using ActionCommandGame.Services.Abstractions;
+﻿using ActionCommandGame.Sdk;
 using ActionCommandGame.Services.Model.Filters;
 using ActionCommandGame.Services.Model.Results;
 using ActionCommandGame.Ui.ConsoleApp.Abstractions;
@@ -10,11 +10,11 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
     internal class InventoryView: IView
     {
         private readonly MemoryStore _memoryStore;
-        private readonly IPlayerItemService _playerItemService;
+        private readonly PlayerItemSdk _playerItemService;
 
         public InventoryView(
             MemoryStore memoryStore,
-            IPlayerItemService playerItemService)
+            PlayerItemSdk playerItemService)
         {
             _memoryStore = memoryStore;
             _playerItemService = playerItemService;

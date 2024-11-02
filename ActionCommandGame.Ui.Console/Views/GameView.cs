@@ -1,7 +1,7 @@
-﻿using ActionCommandGame.Configuration;
-using ActionCommandGame.Extensions;
-using ActionCommandGame.Services.Abstractions;
+﻿using ActionCommandGame.Extensions;
+using ActionCommandGame.Sdk;
 using ActionCommandGame.Services.Model.Core;
+using ActionCommandGame.Services.Model.Results;
 using ActionCommandGame.Ui.ConsoleApp.Abstractions;
 using ActionCommandGame.Ui.ConsoleApp.ConsoleWriters;
 using ActionCommandGame.Ui.ConsoleApp.Navigation;
@@ -11,18 +11,18 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
 {
     internal class GameView : IView
     {
-        private readonly AppSettings _settings;
+        private readonly AppSettingsResult _settings;
         private readonly MemoryStore _memoryStore;
         private readonly NavigationManager _navigationManager;
-        private readonly IGameService _gameService;
-        private readonly IPlayerService _playerService;
+        private readonly GameSdk _gameService;
+        private readonly PlayerSdk _playerService;
 
         public GameView(
-            AppSettings settings,
+            AppSettingsResult settings,
             MemoryStore memoryStore,
             NavigationManager navigationManager,
-            IGameService gameService,
-            IPlayerService playerService)
+            GameSdk gameService,
+            PlayerSdk playerService)
         {
             _settings = settings;
             _memoryStore = memoryStore;
@@ -33,6 +33,7 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
 
         public async Task Show()
         {
+            
             ConsoleWriter.WriteText($"Play your game. Try typing \"help\" or \"{_settings.ActionCommand}\"", ConsoleColor.Yellow);
 
             //Get the player from somewhere

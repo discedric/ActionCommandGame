@@ -71,5 +71,19 @@ namespace ActionCommandGame.Services.Extensions
 
             return serviceResult;
         }
+        
+        public static T LoginFailed<T>(this T serviceResult)
+            where T : ServiceResult
+        {
+            var message = new ServiceMessage
+            {
+                Code = "LoginFailed",
+                Message = "Login failed. Please check your credentials and try again.",
+                MessagePriority = MessagePriority.Error
+            };
+            serviceResult.Messages.Add(message);
+
+            return serviceResult;
+        }
     }
 }

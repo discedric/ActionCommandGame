@@ -1,12 +1,9 @@
 ﻿using System.Text;
-using ActionCommandGame.Configuration;
-using ActionCommandGame.Repository;
-using ActionCommandGame.Services;
-using ActionCommandGame.Services.Abstractions;
+using ActionCommandGame.Sdk.Extensions;
 using ActionCommandGame.Ui.ConsoleApp.Navigation;
+using ActionCommandGame.Ui.ConsoleApp.Settings;
 using ActionCommandGame.Ui.ConsoleApp.Stores;
 using ActionCommandGame.Ui.ConsoleApp.Views;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -19,42 +16,37 @@ namespace ActionCommandGame.Ui.ConsoleApp
 
         static async Task Main()
         {
+            var directory = Directory.GetCurrentDirectory();
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
-            
             Configuration = builder.Build();
-
+            
             var serviceCollection = new ServiceCollection();
-            ConfigureServices(serviceCollection);
+            await ConfigureServices(serviceCollection);
             ServiceProvider = serviceCollection.BuildServiceProvider();
-
+            
             var navigationManager = ServiceProvider.GetRequiredService<NavigationManager>();
-
-            var dbContext = ServiceProvider.GetRequiredService<ActionCommandGameDbContext>();
-            dbContext.Initialize();
-
+            
             Console.OutputEncoding = Encoding.UTF8;
             
             await navigationManager.NavigateTo<TitleView>();
         }
 
-        public static void ConfigureServices(IServiceCollection services)
-
+        
+        public static async Task ConfigureServices(IServiceCollection services)
         {
-            var appSettings = new AppSettings();
-            Configuration?.Bind(nameof(AppSettings), appSettings);
-            services.AddSingleton(appSettings);
-            
-            services.AddDbContext<ActionCommandGameDbContext>(options =>
-                options.UseInMemoryDatabase(nameof(ActionCommandGameDbContext)));
-
             services.AddSingleton<MemoryStore>();
+            
+            var apiSettings = new ApiSettings();
+            Configuration?.GetSection(nameof(ApiSettings)).Bind(apiSettings);
+            
+            await services.AddApi(apiSettings.BaseUrl);
 
-            //Register Navigation
+            // Register Navigation
             services.AddTransient<NavigationManager>();
 
-            //Register the Views
+            // Register the Views
             services.AddTransient<ExitView>();
             services.AddTransient<GameView>();
             services.AddTransient<HelpView>();
@@ -63,14 +55,7 @@ namespace ActionCommandGame.Ui.ConsoleApp
             services.AddTransient<PlayerSelectionView>();
             services.AddTransient<ShopView>();
             services.AddTransient<TitleView>();
-
-            //Register Services
-            services.AddScoped<IGameService, GameService>();
-            services.AddScoped<IItemService, ItemService>();
-            services.AddScoped<INegativeGameEventService, NegativeGameEventService>();
-            services.AddScoped<IPositiveGameEventService, PositiveGameEventService>();
-            services.AddScoped<IPlayerItemService, PlayerItemService>();
-            services.AddScoped<IPlayerService, PlayerService>();
+            services.AddTransient<LoginView>();
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿using ActionCommandGame.Services.Abstractions;
+﻿using ActionCommandGame.Sdk;
 using ActionCommandGame.Services.Model.Results;
 using ActionCommandGame.Ui.ConsoleApp.Abstractions;
 using ActionCommandGame.Ui.ConsoleApp.ConsoleWriters;
@@ -7,9 +7,9 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
 {
     internal class ShopView: IView
     {
-        private readonly IItemService _itemService;
+        private readonly ItemSdk _itemService;
 
-        public ShopView(IItemService itemService)
+        public ShopView(ItemSdk itemService)
         {
             _itemService = itemService;
         }

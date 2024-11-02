@@ -1,6 +1,6 @@
 ﻿
 using ActionCommandGame.Extensions;
-using ActionCommandGame.Services.Abstractions;
+using ActionCommandGame.Sdk;
 using ActionCommandGame.Services.Model.Filters;
 using ActionCommandGame.Ui.ConsoleApp.Abstractions;
 using ActionCommandGame.Ui.ConsoleApp.ConsoleWriters;
@@ -11,11 +11,11 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
     internal class LeaderboardView: IView
     {
         private readonly MemoryStore _memoryStore;
-        private readonly IPlayerService _playerService;
+        private readonly PlayerSdk _playerService;
 
         public LeaderboardView(
             MemoryStore memoryStore,
-            IPlayerService playerService)
+            PlayerSdk playerService)
         {
             _memoryStore = memoryStore;
             _playerService = playerService;

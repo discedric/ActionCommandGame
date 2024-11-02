@@ -1,4 +1,4 @@
-﻿using ActionCommandGame.Configuration;
+﻿using ActionCommandGame.Services.Model.Results;
 using ActionCommandGame.Ui.ConsoleApp.Abstractions;
 using ActionCommandGame.Ui.ConsoleApp.ConsoleWriters;
 
@@ -6,9 +6,9 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
 {
     internal class HelpView: IView
     {
-        private readonly AppSettings _appSettings;
+        private readonly AppSettingsResult _appSettings;
 
-        public HelpView(AppSettings appSettings)
+        public HelpView(AppSettingsResult appSettings)
         {
             _appSettings = appSettings;
         }

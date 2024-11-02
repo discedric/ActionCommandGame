@@ -1,4 +1,4 @@
-﻿using ActionCommandGame.Configuration;
+﻿using ActionCommandGame.Services.Model.Results;
 using ActionCommandGame.Ui.ConsoleApp.Abstractions;
 using ActionCommandGame.Ui.ConsoleApp.ConsoleWriters;
 using ActionCommandGame.Ui.ConsoleApp.Navigation;
@@ -7,11 +7,11 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
 {
     internal class TitleView: IView
     {
-        private readonly AppSettings _appSettings;
+        private readonly AppSettingsResult _appSettings;
         private readonly NavigationManager _navigationManager;
 
         public TitleView(
-            AppSettings appSettings,
+            AppSettingsResult appSettings,
             NavigationManager navigationManager)
         {
             _appSettings = appSettings;
