@@ -1,11 +1,15 @@
-﻿using System.Text;
+﻿using System.Collections.Immutable;
+using System.Text;
+using ActionCommandGame.Sdk;
 using ActionCommandGame.Sdk.Extensions;
+using ActionCommandGame.Services.Model.Authentication;
 using ActionCommandGame.Ui.ConsoleApp.Navigation;
 using ActionCommandGame.Ui.ConsoleApp.Settings;
 using ActionCommandGame.Ui.ConsoleApp.Stores;
 using ActionCommandGame.Ui.ConsoleApp.Views;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace ActionCommandGame.Ui.ConsoleApp
 {
@@ -20,6 +24,7 @@ namespace ActionCommandGame.Ui.ConsoleApp
             var builder = new ConfigurationBuilder()
                 .SetBasePath(Directory.GetCurrentDirectory())
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+            
             Configuration = builder.Build();
             
             var serviceCollection = new ServiceCollection();
@@ -36,12 +41,21 @@ namespace ActionCommandGame.Ui.ConsoleApp
         
         public static async Task ConfigureServices(IServiceCollection services)
         {
+            services.AddHttpContextAccessor();
             services.AddSingleton<MemoryStore>();
             
             var apiSettings = new ApiSettings();
             Configuration?.GetSection(nameof(ApiSettings)).Bind(apiSettings);
+            services.AddScoped<IBearerTokenStore,BearerTokenStore>();
             
             await services.AddApi(apiSettings.BaseUrl);
+            
+            services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                .AddCookie(options =>
+                {
+                    options.LoginPath = "/SignIn";
+                    options.AccessDeniedPath = "/SignIn";
+                });
 
             // Register Navigation
             services.AddTransient<NavigationManager>();
@@ -53,9 +67,11 @@ namespace ActionCommandGame.Ui.ConsoleApp
             services.AddTransient<InventoryView>();
             services.AddTransient<LeaderboardView>();
             services.AddTransient<PlayerSelectionView>();
+            services.AddTransient<CreatePlayerView>();
             services.AddTransient<ShopView>();
             services.AddTransient<TitleView>();
-            services.AddTransient<LoginView>();
+            services.AddTransient<SignInView>();
+            services.AddTransient<SignUpView>();
         }
     }
 }

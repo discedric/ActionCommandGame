@@ -31,7 +31,7 @@ namespace ActionCommandGame.Sdk
 
         public async Task<AuthenticationResult> SignUp(UserRegisterRequest userRegisterRequest)
         {
-            var client = _httpClientFactory.CreateClient("Identity");
+            var client = _httpClientFactory.CreateClient("ActionCommandGame");
             var response = await client.PostAsJsonAsync("api/identity/signup", userRegisterRequest);
             response.EnsureSuccessStatusCode();
             

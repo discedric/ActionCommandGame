@@ -1,4 +1,5 @@
-﻿using ActionCommandGame.Extensions;
+﻿using System.Timers;
+using ActionCommandGame.Extensions;
 using ActionCommandGame.Sdk;
 using ActionCommandGame.Services.Model.Core;
 using ActionCommandGame.Services.Model.Results;
@@ -6,6 +7,7 @@ using ActionCommandGame.Ui.ConsoleApp.Abstractions;
 using ActionCommandGame.Ui.ConsoleApp.ConsoleWriters;
 using ActionCommandGame.Ui.ConsoleApp.Navigation;
 using ActionCommandGame.Ui.ConsoleApp.Stores;
+using Timer = System.Timers.Timer;
 
 namespace ActionCommandGame.Ui.ConsoleApp.Views
 {
@@ -16,6 +18,7 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
         private readonly NavigationManager _navigationManager;
         private readonly GameSdk _gameService;
         private readonly PlayerSdk _playerService;
+        private Timer _autoMinerTimer;
 
         public GameView(
             AppSettingsResult settings,
@@ -75,6 +78,7 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
                 if (CheckCommand(command, new[] { "shop", "store" }))
                 {
                     await _navigationManager.NavigateTo<ShopView>();
+                    await ShowStats(currentPlayerId);
                 }
 
                 if (CheckCommand(command, new[] { "buy", "purchase", "get" }))
@@ -109,10 +113,50 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
                 {
                     await _navigationManager.NavigateTo<HelpView>();
                 }
+                if (CheckCommand(command, new[] { "automine" }))
+                {
+                    await StartAutoMiner(currentPlayerId);
+                }
+
+                if (CheckCommand(command, new[] { "sm" }))
+                {
+                    StopAutoMiner();
+                }
             }
         }
 
+        private async Task StartAutoMiner(int playerId)
+        {
+            var playerResult = await _playerService.Get(playerId);
+            if (playerResult.Data is null)
+            {
+                return;
+            }
+            var player = playerResult.Data;
+            _autoMinerTimer = new Timer(1 * 1050); // Convert seconds to milliseconds
+            _autoMinerTimer.Elapsed += async (sender, e) =>
+            {
+                Console.Clear();
+                await PerformAction(playerId);
+                await ShowStats(playerId);
+            };
+            _autoMinerTimer.AutoReset = true;
+            _autoMinerTimer.Enabled = true;
 
+            ConsoleWriter.WriteText("Autominer started.", ConsoleColor.Green);
+        }
+
+        private void StopAutoMiner()
+        {
+            if (_autoMinerTimer != null)
+            {
+                _autoMinerTimer.Stop();
+                _autoMinerTimer.Dispose();
+                _autoMinerTimer = null;
+
+                ConsoleWriter.WriteText("Autominer stopped.", ConsoleColor.Red);
+            }
+        }
 
         private static bool CheckCommand(string command, IList<string> matchingCommands)
         {

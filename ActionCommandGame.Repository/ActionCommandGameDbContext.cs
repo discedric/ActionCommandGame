@@ -7,11 +7,13 @@ using Microsoft.Extensions.Configuration;
 
 namespace ActionCommandGame.Repository
 {
-    public class ActionCommandGameDbContext : IdentityDbContext
+    public class ActionCommandGameDbContext : IdentityDbContext<ApplicationUser>
     {
         private readonly IConfiguration _configuration;
 
-        public ActionCommandGameDbContext(DbContextOptions<ActionCommandGameDbContext> options, IConfiguration configuration)
+        public ActionCommandGameDbContext(
+            DbContextOptions<ActionCommandGameDbContext> options, 
+            IConfiguration configuration)
             : base(options)
         {
             _configuration = configuration;
@@ -26,7 +28,6 @@ namespace ActionCommandGame.Repository
             }
         }
         
-        public DbSet<IdentityUser> Accounts { get; set; }
         public DbSet<Item> Items { get; set; }
         public DbSet<Player> Players { get; set; }
         public DbSet<PositiveGameEvent> PositiveGameEvents { get; set; }

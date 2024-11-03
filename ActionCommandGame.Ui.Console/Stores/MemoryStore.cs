@@ -3,6 +3,6 @@
     public class MemoryStore
     {
         public int CurrentPlayerId { get; set; }
-        public int CurrentUserId { get; set; }
+        public string CurrentUserId { get; set; }
     }
 }

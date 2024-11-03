@@ -19,6 +19,12 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
 
             ConsoleWriter.WriteText($"\t{_appSettings.ActionCommand}: ", ConsoleColor.White, false);
             ConsoleWriter.WriteText("Do something");
+            
+            ConsoleWriter.WriteText("\tautomine: ", ConsoleColor.White, false);
+            ConsoleWriter.WriteText("Automatically mine");
+            
+            ConsoleWriter.WriteText("\tsm: ", ConsoleColor.White, false);
+            ConsoleWriter.WriteText("Stop the automine");
 
             ConsoleWriter.WriteText("\tshop: ", ConsoleColor.White, false);
             ConsoleWriter.WriteText("See the shop items");

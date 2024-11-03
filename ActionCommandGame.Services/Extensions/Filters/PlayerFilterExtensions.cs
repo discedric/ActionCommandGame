@@ -1,5 +1,6 @@
 ﻿using ActionCommandGame.Model;
 using ActionCommandGame.Services.Model.Filters;
+using Microsoft.AspNetCore.Identity;
 
 namespace ActionCommandGame.Services.Extensions.Filters
 {
@@ -12,7 +13,8 @@ namespace ActionCommandGame.Services.Extensions.Filters
                 return query;
             }
 
-            return query;
+            return query
+                .Where(p => p.ApplicationUserId == filter.UserId);
         }
     }
 }

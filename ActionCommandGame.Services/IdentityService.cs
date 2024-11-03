@@ -4,6 +4,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.IdentityModel.Tokens;
 using ActionCommandGame.Configuration;
+using ActionCommandGame.Model;
 using ActionCommandGame.Services.Abstractions;
 using ActionCommandGame.Services.Extensions;
 using ActionCommandGame.Services.Model.Core;
@@ -12,9 +13,9 @@ using ActionCommandGame.Services.Model.Results;
 
 namespace ActionCommandGame.Services;
 
-public class IdentityService(UserManager<IdentityUser> userManager, JwtSettings jwtSettings) : IIdentityService
+public class IdentityService(UserManager<ApplicationUser> userManager, JwtSettings jwtSettings) : IIdentityService
 {
-    private readonly UserManager<IdentityUser> _userManager = userManager;
+    private readonly UserManager<ApplicationUser> _userManager = userManager;
     private readonly JwtSettings _jwtSettings = jwtSettings;
 
     public async Task<AuthenticationResult> SignIn(UserSignInRequest request)
@@ -39,43 +40,54 @@ public class IdentityService(UserManager<IdentityUser> userManager, JwtSettings 
 
         var token = GenerateJwtToken(existingUser);
 
-        return new AuthenticationResult() { Token = token };
+        return new AuthenticationResult() { Token = token , UserId = existingUser.Id };
     }
-    
+
     public async Task<AuthenticationResult> SignUp(UserRegisterRequest request)
     {
-        //Check user
+        // Check if the user already exists
         var existingUser = await _userManager.FindByEmailAsync(request.Email.ToLower());
         if (existingUser is not null)
         {
-            var result = new AuthenticationResult();
-            result.Messages.Add(new ServiceMessage
+            return new AuthenticationResult
             {
-                Code = "RegisterFailed", 
-                Message = "User already exists."
-            });
-            return result;
+                Messages = new List<ServiceMessage>
+                {
+                    new ServiceMessage
+                    {
+                        Code = "RegisterFailed",
+                        Message = "User already exists."
+                    }
+                }
+            };
         }
 
-        var registerUser = new IdentityUser(request.Email.ToLower());
+        var registerUser = new ApplicationUser
+        {
+            Email = request.Email.ToLower(),
+            NormalizedEmail = request.Email.ToUpper(),
+            UserName = request.Email.ToLower(),
+            NormalizedUserName = request.Email.ToUpper()
+        };
+
         var createUserResult = await _userManager.CreateAsync(registerUser, request.Password);
         if (!createUserResult.Succeeded)
         {
-            var result = new AuthenticationResult();
-
-            result.Messages = createUserResult.Errors.Select(e => new ServiceMessage
+            return new AuthenticationResult
             {
-                Code = e.Code,
-                Message = e.Description,
-                MessagePriority = MessagePriority.Error
-            }).ToList();
-
-            return result;
+                Messages = createUserResult.Errors.Select(e => new ServiceMessage
+                {
+                    Code = e.Code,
+                    Message = e.Description,
+                    MessagePriority = MessagePriority.Error
+                }).ToList()
+            };
         }
-
+        // get new created user
+        registerUser = await _userManager.FindByEmailAsync(request.Email.ToLower());
+        // Create and return token
         var token = GenerateJwtToken(registerUser);
-
-        return new AuthenticationResult() { Token = token };
+        return new AuthenticationResult { Token = token , UserId = registerUser.Id};
     }
 
     private string GenerateJwtToken(IdentityUser user)
@@ -98,14 +110,18 @@ public class IdentityService(UserManager<IdentityUser> userManager, JwtSettings 
             claims.Add(new Claim(JwtRegisteredClaimNames.Email, user.Email));
         }
 
+        var expirationTime = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime);
+        var notBeforeTime = DateTime.UtcNow; // Set the not-before time to now
+
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.Add(_jwtSettings.TokenLifetime),
+            NotBefore = notBeforeTime, // Set the NotBefore time
+            Expires = expirationTime, // Set the expiration time to future
             SigningCredentials =
                 new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
         };
-        
+
         var securityToken = handler.CreateToken(tokenDescriptor);
         
         return handler.WriteToken(securityToken);

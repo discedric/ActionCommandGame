@@ -13,47 +13,46 @@ using Microsoft.OpenApi.Models;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(options =>
+{
+    var securityDefinition = new OpenApiSecurityScheme
     {
-        var securitydefinition = new OpenApiSecurityScheme
-        {
-            Name = "Authorization",
-            Description = "JWT Authorization header using the Bearer scheme.",
-            In = ParameterLocation.Header,
-            Type = SecuritySchemeType.ApiKey
-        };
-        options.AddSecurityDefinition("Bearer", securitydefinition);
+        Name = "Authorization",
+        Description = "JWT Authorization header using the Bearer scheme.",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey
+    };
+    options.AddSecurityDefinition("Bearer", securityDefinition);
 
-        var securityScheme = new OpenApiSecurityScheme
+    var securityScheme = new OpenApiSecurityScheme
+    {
+        Reference = new OpenApiReference
         {
-            Reference = new OpenApiReference
-            {
-                Type = ReferenceType.SecurityScheme,
-                Id = "Bearer"
-            }
-        };
-        
-        var securityRequirement = new OpenApiSecurityRequirement
-        {
-            {
-                securityScheme, new string[] { }
-            }
-        };
-        options.AddSecurityRequirement(securityRequirement);
-    });
+            Type = ReferenceType.SecurityScheme,
+            Id = "Bearer"
+        }
+    };
+
+    var securityRequirement = new OpenApiSecurityRequirement
+    {
+        { securityScheme, new string[] {} }
+    };
+    options.AddSecurityRequirement(securityRequirement);
+});
 
 var appSettings = new AppSettings();
 builder.Configuration?.Bind(nameof(AppSettings), appSettings);
 builder.Services.AddSingleton(appSettings);
 
-builder.Services.AddDbContext<ActionCommandGameDbContext>()
-.AddIdentity<IdentityUser, IdentityRole>()
-.AddEntityFrameworkStores<ActionCommandGameDbContext>();
+// Register DbContext and Identity
+builder.Services.AddDbContext<ActionCommandGameDbContext>();
 
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<ActionCommandGameDbContext>();
+
+// Configure JWT Authentication
 var jwtSettings = new JwtSettings();
 builder.Configuration?.GetSection(nameof(JwtSettings)).Bind(jwtSettings);
 builder.Services.AddSingleton(jwtSettings);
@@ -76,6 +75,8 @@ builder.Services.AddAuthentication(options =>
         ValidateLifetime = true
     };
 });
+
+// Register additional services
 builder.Services.AddScoped<IIdentityService, IdentityService>();
 builder.Services.AddScoped<INegativeGameEventService, NegativeGameEventService>();
 builder.Services.AddScoped<IPositiveGameEventService, PositiveGameEventService>();
@@ -85,6 +86,7 @@ builder.Services.AddScoped<IItemService, ItemService>();
 builder.Services.AddScoped<IGameService, GameService>();
 
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

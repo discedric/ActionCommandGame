@@ -10,10 +10,7 @@ public class AuthorizationHandler(IBearerTokenStore tokenStore): DelegatingHandl
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
         var token = _tokenStore.GetToken();
-        if (!string.IsNullOrWhiteSpace(token))
-        {
-            request.Headers.AddAuthorization(token);
-        }
+        request.Headers.AddAuthorization(token);
         
         return await base.SendAsync(request, cancellationToken);
     }

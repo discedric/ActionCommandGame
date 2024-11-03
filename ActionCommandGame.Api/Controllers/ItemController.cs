@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ActionCommandGame.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class ItemController(IItemService itemService) : ControllerBase

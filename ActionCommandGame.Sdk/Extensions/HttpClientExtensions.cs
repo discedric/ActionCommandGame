@@ -6,7 +6,7 @@ public static class HttpClientExtensions
 {
     public static HttpClient AddAuthorization(this HttpClient client, string token)
     {
-        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        client.DefaultRequestHeaders.AddAuthorization(token);
         return client;
     }
     

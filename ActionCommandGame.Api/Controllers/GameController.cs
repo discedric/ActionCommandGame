@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace ActionCommandGame.Api.Controllers
 {
+    [Authorize]
     [Route("api/[controller]")]
     [ApiController]
     public class GameController(IGameService gameService, AppSettings appSettings) : ControllerBase
@@ -16,19 +17,20 @@ namespace ActionCommandGame.Api.Controllers
         private readonly AppSettings _appSettings = appSettings;
         
         [HttpGet("action/{playerId:int}")]
-        public async Task<IActionResult> PerformAction(int playerId)
+        public async Task<IActionResult> PerformAction([FromRoute]int playerId)
         {
             var result = await _gameService.PerformAction(playerId);
             return Ok(result);
         }
         
         [HttpGet("buy/{playerId:int}/{itemId:int}")]
-        public async Task<IActionResult> Buy(int playerId, int itemId)
+        public async Task<IActionResult> Buy([FromRoute]int playerId,[FromRoute] int itemId)
         {
             var result = await _gameService.Buy(playerId, itemId);
             return Ok(result);
         }
         
+        [AllowAnonymous]
         [HttpGet("settings")]
         public IActionResult GetSettings()
         {

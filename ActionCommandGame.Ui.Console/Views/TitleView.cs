@@ -35,7 +35,7 @@ namespace ActionCommandGame.Ui.ConsoleApp.Views
             ConsoleWriter.WriteText("Press any key to continue. Now where's the \"Any\" key?");
             Console.ReadLine();
 
-            await _navigationManager.NavigateTo<PlayerSelectionView>();
+            await _navigationManager.NavigateTo<SignInView>();
         }
     }
 }

@@ -41,5 +41,14 @@ namespace ActionCommandGame.Repository.Extensions
                 .WithMany(u => u.DefensePlayers)
                 .HasForeignKey(a => a.CurrentDefensePlayerItemId);
         }
+
+        private static void ConfigureAccount(this ModelBuilder builder)
+        {
+            builder.Entity<ApplicationUser>()
+                .HasMany(a => a.Players)
+                .WithOne()
+                .HasForeignKey(p => p.ApplicationUserId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
     }
 }
